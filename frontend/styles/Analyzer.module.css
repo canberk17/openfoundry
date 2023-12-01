@@ -1,0 +1,93 @@
+/* Analyzer.module.css */
+
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #121212;
+  color: #c0c0c0;
+  padding: 20px;
+}
+
+.leftContainer, .rightContainer {
+  flex: 1;
+}
+
+.card {
+  background-color: #222;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(50, 205, 50, 0.3);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+
+.codeEditor {
+  width: 100%;
+  height: 200px;
+  margin-top: 15px;
+  padding: 10px;
+  border: 1px solid #555;
+  border-radius: 5px;
+  background-color: #333;
+  color: #c0c0c0;
+}
+
+.button {
+  width: 100%;
+  margin-top: 15px;
+  text-align: center;
+  background: linear-gradient(to right, #32CD32, #20B2AA); /* Neon gradient */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.searchBar {
+  background-color: #1a1a1a;
+  border: 1px solid #32CD32;
+  border-radius: 25px; /* Rounded search bar */
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: #c0c0c0;
+  margin-bottom: 15px;
+  width: 100%; /* Set the width to 100% of the container */
+}
+
+
+
+
+.button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(50, 205, 50, 0.5);
+}
+
+
+.responseCard {
+  background-color: #222;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(50, 205, 50, 0.3);
+  padding: 20px;
+  overflow-y: auto;
+
+}
+
+.response {
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+  color: #32CD32; /* Neon green text color */
+}
+
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .leftContainer, .rightContainer {
+    width: 100%;
+  }
+}
