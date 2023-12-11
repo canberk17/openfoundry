@@ -113,7 +113,7 @@ def clear_directory_contents(dir_path):
     except Exception as e:
         emit_log(f"Error occurred while clearing directory contents: {e}")
 
-def fix_test_code(error_message, test_code):
+def fix_test_code(error_message, test_code,source_code):
     fixed_code = ask_openai([
         {
             "role": 'system',
@@ -121,7 +121,7 @@ def fix_test_code(error_message, test_code):
         },
         {
             "role": "user",
-            "content": f"Error Message: {error_message}\nTest Code:\n{test_code}\nPlease fix the errors in this Solidity test script and return only the corrected code."
+            "content": f"Error Message: {error_message}\nTest Code:\n{test_code}\n Original Source Code:\n{source_code}\n.Please fix the errors in this Solidity test script and return only the corrected code."
         }
     ])
     return fixed_code
@@ -149,7 +149,7 @@ def analyze():
     except Exception as e:
         error_message = f"Internal Server Error: {str(e)}"
         emit_log(error_message)
-        print(error_message)  # Additional print statement for detailed logging
+        print(error_message)  
         return jsonify({"error": error_message}), 500
 
 
@@ -176,7 +176,7 @@ def main(data):
     solidity_test = ask_openai([
         {
             "role": 'system',
-            "content": 'You are adept at creating Solidity tests using Foundry. Generate a test script for the provided Solidity contract that addresses the concerns in the refined question. Your answer can only return the solidity code, and nothing more in your response. Do not provide any unused or wrong variables, functions or packages in your code. Make sure each functions and the paths  are accurate, and do not include any unidentified Identifiers or wrong argument count'
+            "content": 'You are adept at creating Solidity tests using Foundry. Generate a test script for the provided Solidity contract that addresses the concerns in the refined question. Your answer can only return the solidity code, and nothing more in your response. Do not provide any unused or wrong variables, functions or packages in your code. Make sure each functions and the paths  are accurate, and do not include any unidentified Identifiers or wrong argument count. These are the only functions and imports for the given file, so only create tests for these.'
         },
         {
             "role": "user",
@@ -189,7 +189,7 @@ def main(data):
     better_test = ask_openai([
         {
             "role": 'system',
-            "content": 'You are an expert in reviewing and optimizing Solidity tests. Review the generated test script for potential improvements, focusing on its effectiveness and relevance to the identified vulnerabilities. Your answer can only return the solidity code, and nothing more in your response. Do not provide any unused or wrong variables, functions or packages in your code. Make sure each functions and the paths are accurate, and do not include any unidentified Identifiers or wrong argument count.'
+            "content": 'You are an expert in reviewing and optimizing Solidity tests. Review the generated test script for potential improvements, focusing on its effectiveness and relevance to the identified vulnerabilities. Your answer can only return the solidity code, and nothing more in your response. Do not provide any unused or wrong variables, functions or packages in your code. Make sure each functions and the paths are accurate, and do not include any unidentified Identifiers or wrong argument count.These are the only functions and imports for the given file, so only create tests for these'
         },
         {
             "role": "user",
@@ -208,7 +208,7 @@ def main(data):
         if ("Error" in build_output or "Warning" in build_output ) and "File not found" not in build_output and attempt<3:
             emit_log("Build Error Detected. Attempting to Fix...")
             emit_log(build_output)
-            fixed_test_code = fix_test_code(build_output, current_test_code)
+            fixed_test_code = fix_test_code(build_output, current_test_code,source_code)
             current_test_code = fixed_test_code
             write_to_file(solidity_test_path, clean_test_code(fixed_test_code))
             emit_log("Fixed Test Code Written to File")
@@ -235,9 +235,9 @@ def main(data):
     emit_log("Forge Test Results:\n"+ forge_test_results)
 
     if "FAIL" in forge_test_results:
-        while ( "File not found" in forge_test_results  or "Compiler run failed:" in forge_test_results or "revert" in forge_test_results) :
+        while ( "File not found" in forge_test_results  or "revert" in forge_test_results) :
             emit_log("Test Script Error Detected. Attempting to Fix...")
-            fixed_test_code = fix_test_code(forge_test_results, solidity_test)
+            fixed_test_code = fix_test_code(forge_test_results, solidity_test,source_code)
             write_to_file(solidity_test_path, clean_test_code(fixed_test_code))
             emit_log("Fixed Test Code Written to File")
 
