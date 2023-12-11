@@ -180,7 +180,7 @@ def main(data):
         },
         {
             "role": "user",
-            "content": f"Refined Question: {refined_question}\nSource Code: {source_code}\nPath: {source_code_path}\nPlease create a Foundry test script for this contract. Only return the solidity code, and do not provide anything else in your response"
+            "content": f"Refined Question: {refined_question}\nSource Code: {source_code}\nPath: .{source_code_path}\nPlease create a Foundry test script for this contract. Only return the solidity code, and do not provide anything else in your response"
         }
     ])
     emit_log("Generated Test:\n" + solidity_test)
@@ -204,14 +204,15 @@ def main(data):
 
     while not build_successful:
         build_output = run_forge_build()
-
-        if ("Error" in build_output or "Warning" in build_output ) and "File not found" not in build_output:
+        attempt=0
+        if ("Error" in build_output or "Warning" in build_output ) and "File not found" not in build_output and attempt<3:
             emit_log("Build Error Detected. Attempting to Fix...")
             emit_log(build_output)
             fixed_test_code = fix_test_code(build_output, current_test_code)
             current_test_code = fixed_test_code
             write_to_file(solidity_test_path, clean_test_code(fixed_test_code))
             emit_log("Fixed Test Code Written to File")
+            attempt+=1
         elif "File not found" in build_output:
             fixed_source_code=fix_import_paths(source_code,build_output)
             current_source_code=fixed_source_code
